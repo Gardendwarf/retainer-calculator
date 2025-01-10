@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retainer Estimate Calculator</title>
+  <style>
+    /* CSS */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    #calculator-widget {
+      display: flex;
+      justify-content: space-between;
+      max-width: 900px;
+      margin: 50px auto;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .left-section, .right-section {
+      padding: 20px;
+      width: 50%;
+    }
+
+    .left-section {
+      background-color: #f9f9f9;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    label, p {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    input[type="number"], input[type="radio"], input[type="checkbox"] {
+      margin-right: 8px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .reset-button {
+      background-color: #dc3545;
+    }
+
+    .reset-button:hover {
+      background-color: #a71d2a;
+    }
+
+    .right-section {
+      background-color: #003B6D;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .right-section h3, .right-section p {
+      margin: 10px 0;
+    }
+
+    .result-value {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #0097ff;
+    }
+
+    .highlight {
+      font-size: 1em;
+      color: #ffd700;
+    }
+
+    .note, .gray-text {
+      font-size: 0.9em;
+      color: #ccc;
+      margin-top: 15px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="calculator-widget">
+    <!-- Left Section -->
+    <div class="left-section">
+      <h2>Retainer Estimate Calculator</h2>
+      <p>Select the options required:</p>
+      <label><input type="checkbox" id="accounting" onchange="toggleSection('accounting-options')" /> Accounting</label>
+      <label><input type="checkbox" id="payroll" onchange="toggleSection('payroll-options')" /> Payroll</label>
+      <label><input type="checkbox" id="debtors" onchange="toggleSection('debtors-options')" /> Debtors Management</label>
+
+      <div id="accounting-options" class="hidden">
+        <h3>Accounting</h3>
+        <p><input type="radio" name="companyType" value="services" /> Services</p>
+        <p><input type="radio" name="companyType" value="retail" /> Retail</p>
+        <p>Estimated annual turnover:</p>
+        <input type="number" id="turnover" placeholder="Enter turnover" />
+      </div>
+
+      <div id="payroll-options" class="hidden">
+        <h3>Payroll</h3>
+        <p>Number of employees:</p>
+        <input type="number" id="employees" placeholder="Enter number of employees" />
+      </div>
+
+      <div id="debtors-options" class="hidden">
+        <h3>Debtors Management</h3>
+        <p>Number of debtors:</p>
+        <input type="number" id="debtors-count" placeholder="Enter number of debtors" />
+      </div>
+
+      <div class="button-container">
+        <button onclick="calculate()">Calculate</button>
+        <button class="reset-button" onclick="resetCalculator()">Reset</button>
+      </div>
+    </div>
+
+    <!-- Right Section -->
+    <div class="right-section">
+      <h3>Breakdown of Costs:</h3>
+      <p id="service-costs" class="highlight"></p>
+      <p id="retainer-note" class="gray-text"></p>
+      <h3>Total Monthly Retainer:</h3>
+      <p id="total" class="result-value"></p>
+      <p class="note">Ts & Cs apply. This is only an informal estimate.</p>
+    </div>
+  </div>
+
+  <script>
+    // JavaScript
+    function toggleSection(sectionId) {
+      const section = document.getElementById(sectionId);
+      section.classList.toggle('hidden');
+    }
+
+    function calculate() {
+      const accountingSelected = document.getElementById("accounting").checked;
+      const payrollSelected = document.getElementById("payroll").checked;
+      const debtorsSelected = document.getElementById("debtors").checked;
+
+      let serviceTotal = 0;
+
+      if (accountingSelected) {
+        const companyType = document.querySelector('input[name="companyType"]:checked')?.value;
+        const turnover = parseFloat(document.getElementById("turnover").value) || 0;
+        const accountingRate = companyType === "services" ? 0.015 : 0.018;
+        serviceTotal += turnover * accountingRate / 12;
+      }
+
+      if (payrollSelected) {
+        const employees = parseInt(document.getElementById("employees").value) || 0;
+        if (employees === 1) serviceTotal += 275;
+        else if (employees <= 5) serviceTotal += employees * 150;
+        else if (employees <= 15) serviceTotal += 5 * 150 + (employees - 5) * 120;
+        else serviceTotal += 5 * 150 + 10 * 120 + (employees - 15) * 100;
+      }
+
+      if (debtorsSelected) {
+        const debtors = parseInt(document.getElementById("debtors-count").value) || 0;
+        if (debtors <= 10) serviceTotal += debtors * 155;
+        else if (debtors <= 20) serviceTotal += 10 * 155 + (debtors - 10) * 125;
+        else if (debtors <= 30) serviceTotal += 10 * 155 + 10 * 125 + (debtors - 20) * 100;
+        else serviceTotal += 10 * 155 + 10 * 125 + 10 * 100 + (debtors - 30) * 75;
+      }
+
+      const optionsSelected = [accountingSelected, payrollSelected, debtorsSelected].filter(Boolean).length;
+      if (optionsSelected === 2) serviceTotal *= 0.85;
+      else if (optionsSelected === 3) serviceTotal *= 0.75;
+
+      const finalTotal = Math.max(serviceTotal, 3150);
+
+      document.getElementById("service-costs").textContent = `Combined service costs: R ${serviceTotal.toFixed(2)}`;
+      document.getElementById("retainer-note").textContent = serviceTotal < 3150
+        ? "Less than monthly retainer amount – thus monthly retainer applicable."
+        : "Exceeds monthly retainer amount – full amount applicable.";
+      document.getElementById("total").textContent = `R ${finalTotal.toFixed(2)}`;
+    }
+
+    function resetCalculator() {
+      document.querySelectorAll("input").forEach(input => {
+        if (input.type === "checkbox" || input.type === "radio") input.checked = false;
+        if (input.type === "number") input.value = "";
+      });
+      document.getElementById("accounting-options").classList.add("hidden");
+      document.getElementById("payroll-options").classList.add("hidden");
+      document.getElementById("debtors-options").classList.add("hidden");
+      document.getElementById("service-costs").textContent = "";
+      document.getElementById("retainer-note").textContent = "";
+      document.getElementById("total").textContent = "";
+    }
+  </script>
+</body>
+</html>
