@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
+      background-color: transparent; /* Transparent background */
       margin: 0;
       padding: 0;
     }
@@ -15,8 +15,7 @@
     #calculator-widget {
       display: flex;
       justify-content: space-between;
-      max-width: 1100px; /* Vergroot breedte */
-      max-height: 800px; /* Vergroot hoogte */
+      max-width: 1100px;
       margin: 50px auto;
       background: #ffffff;
       border-radius: 10px;
@@ -55,7 +54,7 @@
       padding: 8px;
       border: 1px solid #ddd;
       border-radius: 4px;
-      background-color: transparent;
+      background-color: transparent; /* Transparent background */
       outline: none;
     }
 
@@ -122,6 +121,14 @@
 
     .hidden {
       display: none;
+    }
+
+    /* Responsive iframe styling */
+    #dynamic-iframe {
+      width: 100%;
+      max-width: 100%;
+      border: none;
+      display: block;
     }
   </style>
 </head>
