@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Retainer Estimate Calculator</title>
   <style>
+    /* General Styles */
     body {
       font-family: Arial, sans-serif;
-      background-color: transparent; /* Transparent background */
+      background-color: transparent;
       margin: 0;
       padding: 0;
     }
@@ -15,7 +16,8 @@
     #calculator-widget {
       display: flex;
       justify-content: space-between;
-      max-width: 1100px;
+      width: 1100px; /* Fixed width */
+      height: 600px; /* Fixed height */
       margin: 50px auto;
       background: #ffffff;
       border-radius: 10px;
@@ -26,6 +28,8 @@
     .left-section, .right-section {
       padding: 20px;
       width: 50%;
+      overflow-y: auto; /* Scroll within sections if needed */
+      box-sizing: border-box;
     }
 
     .left-section {
@@ -54,7 +58,7 @@
       padding: 8px;
       border: 1px solid #ddd;
       border-radius: 4px;
-      background-color: transparent; /* Transparent background */
+      background-color: transparent;
       outline: none;
     }
 
@@ -120,15 +124,7 @@
     }
 
     .hidden {
-      display: none;
-    }
-
-    /* Responsive iframe styling */
-    #dynamic-iframe {
-      width: 100%;
-      max-width: 100%;
-      border: none;
-      display: block;
+      display: none; /* Hide sections initially */
     }
   </style>
 </head>
@@ -172,7 +168,6 @@
     <div class="right-section">
       <h3>Breakdown of Costs:</h3>
       <p id="service-costs" class="highlight"></p>
-      <p id="retainer-note" class="gray-text"></p>
       <h3>Total Monthly Retainer:</h3>
       <p id="total" class="result-value"></p>
       <p class="note">Ts & Cs apply. This is only an informal estimate.</p>
@@ -180,7 +175,7 @@
   </div>
 
   <script>
-    // JavaScript
+    // JavaScript for dynamic functionality
     function toggleSection(sectionId) {
       const section = document.getElementById(sectionId);
       section.classList.toggle('hidden');
@@ -216,16 +211,10 @@
         else serviceTotal += 10 * 155 + 10 * 125 + 10 * 100 + (debtors - 30) * 75;
       }
 
-      const optionsSelected = [accountingSelected, payrollSelected, debtorsSelected].filter(Boolean).length;
-      if (optionsSelected === 2) serviceTotal *= 0.85;
-      else if (optionsSelected === 3) serviceTotal *= 0.75;
-
       const finalTotal = Math.max(serviceTotal, 3150);
 
+      // Update the results
       document.getElementById("service-costs").textContent = `Combined service costs: R ${serviceTotal.toFixed(2)}`;
-      document.getElementById("retainer-note").textContent = serviceTotal < 3150
-        ? "Less than monthly retainer amount – thus monthly retainer applicable."
-        : "Exceeds monthly retainer amount – full amount applicable.";
       document.getElementById("total").textContent = `R ${finalTotal.toFixed(2)}`;
     }
 
@@ -238,7 +227,6 @@
       document.getElementById("payroll-options").classList.add("hidden");
       document.getElementById("debtors-options").classList.add("hidden");
       document.getElementById("service-costs").textContent = "";
-      document.getElementById("retainer-note").textContent = "";
       document.getElementById("total").textContent = "";
     }
   </script>
