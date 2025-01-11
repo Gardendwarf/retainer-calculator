@@ -148,9 +148,9 @@
 
       <div id="accounting-options" class="hidden">
         <h3>Accounting</h3>
-		<p>Select your company type</p>
-        <p><input type="radio" name="companyType" value="services" /> Services Company</p>
-        <p><input type="radio" name="companyType" value="retail" /> Retail Company</p>
+        <p>Select your company type</p>
+        <p><input type="radio" name="companyType" value="services" /> Services company</p>
+        <p><input type="radio" name="companyType" value="retail" /> Retail company</p>
         <p>Estimated annual turnover:</p>
         <input type="number" id="turnover" placeholder="Enter turnover" />
       </div>
@@ -175,8 +175,8 @@
 
     <!-- Right Section -->
     <div class="right-section">
-      <h3>Breakdown of Costs:</h3>
-      <p id="service-costs" class="highlight"></p>
+      <h3 id="breakdown-heading" class="hidden">Breakdown of Costs:</h3>
+      <p id="service-costs" class="highlight hidden"></p>
       <h3>Total Monthly Retainer:</h3>
       <p id="total" class="result-value"></p>
       <p class="note">Ts & Cs apply. This is only an informal estimate.</p>
@@ -249,6 +249,15 @@
 </tr>
 </table>`;
       document.getElementById("total").textContent = `R ${finalTotal.toFixed(2)}`;
+      const serviceCostsSection = document.getElementById("service-costs");
+      const breakdownHeading = document.getElementById("breakdown-heading");
+      if (finalTotal > 3150) {
+        serviceCostsSection.classList.remove("hidden");
+        breakdownHeading.classList.remove("hidden");
+      } else {
+        serviceCostsSection.classList.add("hidden");
+        breakdownHeading.classList.add("hidden");
+      }
     }
 
     function resetCalculator() {
