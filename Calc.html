@@ -186,11 +186,7 @@
   <script>
     function toggleSection(sectionId) {
       const section = document.getElementById(sectionId);
-      if (section.classList.contains('hidden')) {
-        section.classList.remove('hidden');
-      } else {
-        section.classList.add('hidden');
-      }
+      section.classList.toggle('hidden');
     }
 
     function calculate() {
@@ -201,10 +197,10 @@
       let serviceTotal = 0;
 
       if (accountingSelected) {
-        const companyType = document.querySelector('input[name="companyType"]:checked')?.value;
+        const companyType = document.querySelector('input[name="companyType"]:checked')?.value || "services";
         const turnover = parseFloat(document.getElementById("turnover").value) || 0;
-        const accountingRate = companyType === "services" ? 0.015 : 0.018;
-        serviceTotal += turnover * accountingRate / 12;
+        const accountingRate = companyType === "retail" ? 0.018 : 0.015;
+        serviceTotal += (turnover * accountingRate) / 12;
       }
 
       if (payrollSelected) {
@@ -225,39 +221,10 @@
 
       const finalTotal = Math.max(serviceTotal, 3150);
 
-      // Update the results
-      document.getElementById("service-costs").innerHTML = `<table style='width:100%; border-collapse: collapse;'>
-<tr>
-  <th style='border: 1px solid white; padding: 5px; text-align: left;'>Service</th>
-  <th style='border: 1px solid white; padding: 5px; text-align: left;'>Cost</th>
-</tr>
-<tr>
-  <td style='border: 1px solid white; padding: 5px;'>Accounting</td>
-  <td style='border: 1px solid white; padding: 5px;'>R ${(accountingSelected ? (parseFloat(document.getElementById("turnover").value) || 0) * (document.querySelector('input[name="companyType"]:checked')?.value === 'services' ? 0.015 : 0.018) / 12 : 0).toFixed(2)}</td>
-</tr>
-<tr>
-  <td style='border: 1px solid white; padding: 5px;'>Payroll</td>
-  <td style='border: 1px solid white; padding: 5px;'>R ${(payrollSelected ? ((parseInt(document.getElementById("employees").value) || 0) <= 1 ? 275 : ((parseInt(document.getElementById("employees").value) || 0) <= 5 ? (parseInt(document.getElementById("employees").value) || 0) * 150 : ((parseInt(document.getElementById("employees").value) || 0) <= 15 ? 5 * 150 + ((parseInt(document.getElementById("employees").value) || 0) - 5) * 120 : 5 * 150 + 10 * 120 + ((parseInt(document.getElementById("employees").value) || 0) - 15) * 100))) : 0).toFixed(2)}</td>
-</tr>
-<tr>
-  <td style='border: 1px solid white; padding: 5px;'>Debtors Management</td>
-  <td style='border: 1px solid white; padding: 5px;'>R ${(debtorsSelected ? ((parseInt(document.getElementById("debtors-count").value) || 0) <= 10 ? (parseInt(document.getElementById("debtors-count").value) || 0) * 155 : ((parseInt(document.getElementById("debtors-count").value) || 0) <= 20 ? 10 * 155 + ((parseInt(document.getElementById("debtors-count").value) || 0) - 10) * 125 : ((parseInt(document.getElementById("debtors-count").value) || 0) <= 30 ? 10 * 155 + 10 * 125 + ((parseInt(document.getElementById("debtors-count").value) || 0) - 20) * 100 : 10 * 155 + 10 * 125 + 10 * 100 + ((parseInt(document.getElementById("debtors-count").value) || 0) - 30) * 75))) : 0).toFixed(2)}</td>
-</tr>
-<tr>
-  <td style='border: 1px solid white; padding: 5px;'>Combined service costs</td>
-  <td style='border: 1px solid white; padding: 5px;'>R ${serviceTotal.toFixed(2)}</td>
-</tr>
-</table>`;
+      document.getElementById("service-costs").innerHTML = `Combined service costs: R ${serviceTotal.toFixed(2)}`;
       document.getElementById("total").textContent = `R ${finalTotal.toFixed(2)}`;
-      const serviceCostsSection = document.getElementById("service-costs");
-      const breakdownHeading = document.getElementById("breakdown-heading");
-      if (finalTotal > 3150) {
-        serviceCostsSection.classList.remove("hidden");
-        breakdownHeading.classList.remove("hidden");
-      } else {
-        serviceCostsSection.classList.add("hidden");
-        breakdownHeading.classList.add("hidden");
-      }
+      document.getElementById("service-costs").classList.remove("hidden");
+      document.getElementById("breakdown-heading").classList.remove("hidden");
     }
 
     function resetCalculator() {
@@ -268,7 +235,8 @@
       document.getElementById("accounting-options").classList.add("hidden");
       document.getElementById("payroll-options").classList.add("hidden");
       document.getElementById("debtors-options").classList.add("hidden");
-      document.getElementById("service-costs").textContent = "";
+      document.getElementById("service-costs").classList.add("hidden");
+      document.getElementById("breakdown-heading").classList.add("hidden");
       document.getElementById("total").textContent = "";
     }
   </script>
