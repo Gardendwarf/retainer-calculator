@@ -148,9 +148,18 @@
     <div class="left-section">
       <h2>Retainer Estimate Calculator</h2>
       <p>Select the options required:</p>
-      <label><input type="checkbox" id="accounting" onchange="toggleSection('accounting-options')" /> Accounting</label>
-      <label><input type="checkbox" id="payroll" onchange="toggleSection('payroll-options')" /> Payroll</label>
-      <label><input type="checkbox" id="debtors" onchange="toggleSection('debtors-options')" /> Debtors Management</label>
+      <label>
+        <input type="checkbox" id="accounting" onchange="toggleSection('accounting-options')" />
+        Accounting
+      </label>
+      <label>
+        <input type="checkbox" id="payroll" onchange="toggleSection('payroll-options')" />
+        Payroll
+      </label>
+      <label>
+        <input type="checkbox" id="debtors" onchange="toggleSection('debtors-options')" />
+        Debtors Management
+      </label>
 
       <div id="accounting-options" class="hidden">
         <h3>Accounting</h3>
@@ -193,61 +202,72 @@
   <script>
     function toggleSection(sectionId) {
       const section = document.getElementById(sectionId);
-      if (section.classList.contains('hidden')) {
-        section.classList.remove('hidden');
-      } else {
-        section.classList.add('hidden');
-      }
+      section.classList.toggle('hidden');
     }
 
     function calculate() {
+      // Check which services are selected
       const accountingSelected = document.getElementById("accounting").checked;
-      const payrollSelected = document.getElementById("payroll").checked;
-      const debtorsSelected = document.getElementById("debtors").checked;
+      const payrollSelected    = document.getElementById("payroll").checked;
+      const debtorsSelected    = document.getElementById("debtors").checked;
 
       let serviceTotal = 0;
 
-      // Accounting calculation
+      // =========== Accounting Calculation ===========
       if (accountingSelected) {
         const companyType = document.querySelector('input[name="companyType"]:checked')?.value;
         const turnover = parseFloat(document.getElementById("turnover").value) || 0;
         // Default to 1.5% unless it's retail (1.8%)
         const accountingRate = (companyType === "retail") ? 0.018 : 0.015;
+        // Convert annual to monthly
         serviceTotal += turnover * accountingRate / 12;
       }
 
-      // Payroll calculation
+      // =========== Payroll Calculation ===========
+      let payrollCost = 0;
       if (payrollSelected) {
         const employees = parseInt(document.getElementById("employees").value) || 0;
         if (employees === 1) {
-          serviceTotal += 275;
+          payrollCost = 275;
         } else if (employees <= 5) {
-          serviceTotal += employees * 150;
+          payrollCost = employees * 150;
         } else if (employees <= 15) {
-          serviceTotal += 5 * 150 + (employees - 5) * 120;
+          payrollCost = (5 * 150) + ((employees - 5) * 120);
         } else {
-          serviceTotal += 5 * 150 + 10 * 120 + (employees - 15) * 100;
+          payrollCost = (5 * 150) + (10 * 120) + ((employees - 15) * 100);
         }
+        serviceTotal += payrollCost;
       }
 
-      // Debtors Management calculation
+      // =========== Debtors Management Calculation ===========
       if (debtorsSelected) {
         const debtors = parseInt(document.getElementById("debtors-count").value) || 0;
         if (debtors <= 10) {
           serviceTotal += debtors * 155;
         } else if (debtors <= 20) {
-          serviceTotal += 10 * 155 + (debtors - 10) * 125;
+          serviceTotal += (10 * 155) + ((debtors - 10) * 125);
         } else if (debtors <= 30) {
-          serviceTotal += 10 * 155 + 10 * 125 + (debtors - 20) * 100;
+          serviceTotal += (10 * 155) + (10 * 125) + ((debtors - 20) * 100);
         } else {
-          serviceTotal += 10 * 155 + 10 * 125 + 10 * 100 + (debtors - 30) * 75;
+          serviceTotal += (10 * 155) + (10 * 125) + (10 * 100) + ((debtors - 30) * 75);
         }
       }
 
-      // Compare with minimum monthly retainer of R3150
-      const finalTotal = Math.max(serviceTotal, 3150);
+      // Determine if minimum retainer applies
+      const onlyPayroll = payrollSelected && !accountingSelected && !debtorsSelected;
+      let finalTotal = 0;
 
-      // Update the results (breakdown table)
+      // If only Payroll is selected, do NOT apply the min retainer.
+      // Otherwise, apply the standard min retainer of R3150.
+      if (onlyPayroll) {
+        finalTotal = payrollCost; // Just the payroll cost
+      } else {
+        finalTotal = Math.max(serviceTotal, 3150);
+      }
+
+      // =========== Update the UI ===========
+
+      // Build breakdown table (always calculated the same way)
       document.getElementById("service-costs").innerHTML = `
         <table style='width:100%; border-collapse: collapse;'>
           <tr>
@@ -260,10 +280,10 @@
               (accountingSelected
                 ? (parseFloat(document.getElementById("turnover").value) || 0)
                   * (
-                      (document.querySelector('input[name="companyType"]:checked')?.value === 'retail')
+                    (document.querySelector('input[name="companyType"]:checked')?.value === 'retail')
                       ? 0.018
                       : 0.015
-                    ) / 12
+                  ) / 12
                 : 0
               ).toFixed(2)
             }</td>
@@ -272,22 +292,7 @@
             <td style='border: 1px solid white; padding: 5px;'>Payroll</td>
             <td style='border: 1px solid white; padding: 5px;'>R ${
               (payrollSelected
-                ? (
-                    (parseInt(document.getElementById("employees").value) || 0) === 1
-                      ? 275
-                      : (
-                          (parseInt(document.getElementById("employees").value) || 0) <= 5
-                            ? (parseInt(document.getElementById("employees").value) || 0) * 150
-                            : (
-                                (parseInt(document.getElementById("employees").value) || 0) <= 15
-                                  ? (5 * 150) +
-                                    ((parseInt(document.getElementById("employees").value) || 0) - 5) * 120
-                                  : (5 * 150) +
-                                    (10 * 120) +
-                                    ((parseInt(document.getElementById("employees").value) || 0) - 15) * 100
-                              )
-                        )
-                  )
+                ? payrollCost
                 : 0
               ).toFixed(2)
             }</td>
@@ -296,22 +301,18 @@
             <td style='border: 1px solid white; padding: 5px;'>Debtors Management</td>
             <td style='border: 1px solid white; padding: 5px;'>R ${
               (debtorsSelected
-                ? (
-                    (parseInt(document.getElementById("debtors-count").value) || 0) <= 10
-                      ? (parseInt(document.getElementById("debtors-count").value) || 0) * 155
-                      : (
-                          (parseInt(document.getElementById("debtors-count").value) || 0) <= 20
-                            ? (10 * 155) +
-                              ((parseInt(document.getElementById("debtors-count").value) || 0) - 10) * 125
-                            : (
-                                (parseInt(document.getElementById("debtors-count").value) || 0) <= 30
-                                  ? (10 * 155) + (10 * 125) +
-                                    ((parseInt(document.getElementById("debtors-count").value) || 0) - 20) * 100
-                                  : (10 * 155) + (10 * 125) + (10 * 100) +
-                                    ((parseInt(document.getElementById("debtors-count").value) || 0) - 30) * 75
-                              )
-                        )
-                  )
+                ? (function() {
+                    const d = parseInt(document.getElementById("debtors-count").value) || 0;
+                    if (d <= 10) {
+                      return d * 155;
+                    } else if (d <= 20) {
+                      return (10 * 155) + ((d - 10) * 125);
+                    } else if (d <= 30) {
+                      return (10 * 155) + (10 * 125) + ((d - 20) * 100);
+                    } else {
+                      return (10 * 155) + (10 * 125) + (10 * 100) + ((d - 30) * 75);
+                    }
+                  })()
                 : 0
               ).toFixed(2)
             }</td>
@@ -323,11 +324,15 @@
         </table>
       `;
 
+      // Display final total
       document.getElementById("total").textContent = `R ${finalTotal.toFixed(2)}`;
+
+      // Show or hide the breakdown table
       const serviceCostsSection = document.getElementById("service-costs");
       const breakdownHeading = document.getElementById("breakdown-heading");
 
-      // Show breakdown only if finalTotal > minimum retainer
+      // Keep the existing rule: Show breakdown if finalTotal exceeds 3150
+      // (You can adjust this if you want to show a breakdown for other scenarios)
       if (finalTotal > 3150) {
         serviceCostsSection.classList.remove("hidden");
         breakdownHeading.classList.remove("hidden");
@@ -338,6 +343,7 @@
     }
 
     function resetCalculator() {
+      // Reset inputs
       document.querySelectorAll("input").forEach(input => {
         if (input.type === "checkbox" || input.type === "radio") {
           input.checked = false;
@@ -351,9 +357,12 @@
       const servicesRadio = document.querySelector('input[name="companyType"][value="services"]');
       if (servicesRadio) servicesRadio.checked = true;
 
+      // Hide all optional sections
       document.getElementById("accounting-options").classList.add("hidden");
       document.getElementById("payroll-options").classList.add("hidden");
       document.getElementById("debtors-options").classList.add("hidden");
+
+      // Clear displayed results
       document.getElementById("service-costs").textContent = "";
       document.getElementById("total").textContent = "";
       document.getElementById("breakdown-heading").classList.add("hidden");
